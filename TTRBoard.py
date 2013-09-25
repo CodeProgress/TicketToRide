@@ -99,11 +99,14 @@ class Board:
         #create a copy of the board to store the original state of the board
         self.copyBoard = self.G.copy()
         
-    def showBoard(self):
+    def showBoard(self, pauseTime = 7):
         '''display board
         '''
         nx.draw(self.G)
+        pylab.ion()
         pylab.show()
+        pylab.pause(pauseTime)
+        pylab.close()
 
     def showCopyBoard(self):
         '''display copy board (original board)
@@ -113,12 +116,13 @@ class Board:
     
     def hasEdge(self, city1, city2):
         '''returns True an edge exists between city1, city2.  False otherwise
+        city1, city2: string
         '''
         return self.G.has_edge(city1, city2)
 
     def removeEdge(self, city1, city2, color):
         '''remove the edge between two cities that's colored color
-        city1, city2:  strings
+        city1, city2:  string
         color:  string
         raises ValueError if edge does not exist
         '''
@@ -132,21 +136,19 @@ class Board:
                 self.G.remove_edge(city1, city2)
             
     def getEdges(self):
+        '''returns all remaining edges'''
         return self.G.edges()
 
     def getEdgeColors(self, city1, city2):
         '''returns the edgeColors of edge
-        city1, city2: strings
+        city1, city2: string
         '''
         return self.G.get_edge_data(city1, city2)['edgeColors']
 
     def getEdgeWeight(self, city1, city2):
         '''returns the weight of the edge
-        city1, city2: strings
+        city1, city2: string
         '''
         return self.G.get_edge_data(city1, city2)['weight']
 
-    ##more methods forthcoming...
-
-board = Board()
-board.showBoard()
+    
