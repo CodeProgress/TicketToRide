@@ -2,9 +2,9 @@ import random
 
 class Cards:
     def __init__(self):
-        self.cards = ["Wild" for x in range(14)] + \
-                    [x for x in ["Red", "Orange", "Yellow", "Green", "Blue", \
-                     "Purple", "White", "Black"] for j in range(12)]
+        self.cards = ["wild" for x in range(14)] + \
+                    [x for x in ["red", "orange", "yellow", "green", "blue", \
+                     "purple", "white", "black"] for j in range(12)]
                      
         self.shuffle(self.cards)
         
