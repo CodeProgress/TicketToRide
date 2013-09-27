@@ -136,7 +136,7 @@ class Board:
                 self.G.remove_edge(city1, city2)
             
     def getEdges(self):
-        '''returns all remaining edges'''
+        '''returns a list of tuples of all remaining edges', [(city1, city2)]'''
         return self.G.edges()
 
     def getEdgeColors(self, city1, city2):
@@ -146,9 +146,25 @@ class Board:
         return self.G.get_edge_data(city1, city2)['edgeColors']
 
     def getEdgeWeight(self, city1, city2):
-        '''returns the weight of the edge
+        '''returns the weight of the edge (i.e. the distance between two cities)
         city1, city2: string
         '''
         return self.G.get_edge_data(city1, city2)['weight']
 
+    def getCities(self):
+        '''returns a list of all remaining cities that can be traveled to or from'''
+        return self.G.nodes()
+    
+    def getAdjCities(self, city1):
+        '''returns a list of cities adjacent to city1 that still have available edges'''
+        return self.G.get
+        
+class PlayerBoard(Board):
+    '''Creates an custom graph to be assigned to each player to represent all progress'''
+    def __init__(self):
+        self.G = nx.Graph()
+    
+    def addEdge(self, city1, city2, routeDist, color):
+        self.G.add_edge(city1, city2, weight = routeDist, edgeColors = [color])
+        
     
