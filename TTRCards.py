@@ -4,10 +4,10 @@ import random
 class Cards:
     def __init__(self, sizeDrawPile):
         self.sizeDrawPile = sizeDrawPile
-        
+        self.possibleColors = ["red", "orange", "yellow", "green", "blue", \
+                     "purple", "white", "black"]
         self.cards = ["wild" for x in range(14)] + \
-                    [x for x in ["red", "orange", "yellow", "green", "blue", \
-                     "purple", "white", "black"] for j in range(12)]
+                    [x for x in self.possibleColors for j in range(12)]
                      
         self.shuffle(self.cards)
         
@@ -47,11 +47,10 @@ class Cards:
         self.shuffle(self.tickets)
         
         self.drawPile = []
-
-        self.addToDrawPile() #[self.dealCard() for x in range(self.sizeDrawPile)]
-        
         self.discardPile = []
         self.ticketDiscardPile = []
+
+        self.addToDrawPile() #[self.dealCard() for x in range(self.sizeDrawPile)]
                 
     def shuffle(self, cards):
         '''shuffles cards in-place, nothing returned
