@@ -1,7 +1,10 @@
+
 import random
 
 class Cards:
-    def __init__(self):
+    def __init__(self, sizeDrawPile):
+        self.sizeDrawPile = sizeDrawPile
+        
         self.cards = ["wild" for x in range(14)] + \
                     [x for x in ["red", "orange", "yellow", "green", "blue", \
                      "purple", "white", "black"] for j in range(12)]
@@ -44,7 +47,8 @@ class Cards:
         self.shuffle(self.tickets)
         
         self.drawPile = []
-        self.createDrawPile()
+
+        self.addToDrawPile() #[self.dealCard() for x in range(self.sizeDrawPile)]
         
         self.discardPile = []
         self.ticketDiscardPile = []
@@ -59,13 +63,19 @@ class Cards:
         '''returns a single card'''
         if len(self.cards) == 0:
             self.restockCards()
-        if len(self.cards) == 0:
-            return "There are no more cards in the deck!"
-        return self.cards.pop()
+        try:
+            return self.cards.pop()
+        except IndexError:
+            print "\n There are no more cards in the deck! \n"
     
     def dealTicket(self):
         '''returns a single destination ticket'''
-        return self.tickets.pop()
+        if len(self.tickets) == 0:
+            self.restockTickets()
+        try:
+            return self.tickets.pop()
+        except IndexError:
+            print "\n There are no more tickets in the deck! \n"
     
     def dealCards(self, numCards):
         '''returns a list of (numCards) cards
@@ -74,7 +84,7 @@ class Cards:
         return [self.dealCard() for x in range(numCards)]
     
     def dealTickets(self, numTickets):
-        '''returns a list of (numTickets) tickets
+        '''returns a set of (numTickets) tickets
         numTickets: int
         '''
         return [self.dealTicket() for x in range(numTickets)]
@@ -92,33 +102,53 @@ class Cards:
         '''returns the next card in cards'''
         return self.dealCard()
     
-    def createDrawPile(self, sizeDrawPile = 5):
-        '''adds (sizeDrawPile) more cards to draw pile'''
-        assert len(self.drawPile) == 0
-        for card in range(sizeDrawPile):
-            self.drawPile.append(self.dealCard())
-    
-    def addToDrawPile(self):
-        '''adds one more card to draw pile'''
-        self.drawPile.append(self.dealCard())
-    
+    def addToDrawPile(self, maxWilds = 3):
+        '''adds one more cards to draw pile'''
+        nextCard = self.dealCard()
+        if nextCard != None: #this is for when the drawPile AND discardPile are empty
+            self.drawPile.append(nextCard)
+        
+        if len(self.drawPile) < self.sizeDrawPile:
+            self.restockDrawPile()
+        
+        #check to see if draw pile has reached maxWilds, if so, clear and create new drawPile
+        if self.drawPile.count('wild') >= maxWilds:
+            self.addToDiscard(self.drawPile)
+            self.drawPile = []
+            self.addToDrawPile()
+            
+            
     def getDrawPile(self):
         return self.drawPile
+    
+    def getDiscardPile(self):
+        return self.discardPile
     
     def addToDiscard(self, cards):
         '''adds one or more cards to the discard pile
         does not remove cards from source they came from
         '''
         for card in cards:
-            self.ticketDiscardPile.append(card)
-    
-    def addToTicketDiscard(self, tickets):
+            self.discardPile.append(card)
+        if len(self.drawPile) < self.sizeDrawPile:
+            self.restockDrawPile()
+        
+    def restockDrawPile(self):
+        while len(self.drawPile) < self.sizeDrawPile:
+            if len(self.cards) == 0 and len(self.discardPile) == 0:
+                break
+            elif len(self.cards) == 0:
+                self.restockCards()
+            nextCard = self.dealCard()
+            if nextCard != None:
+                self.drawPile.append(nextCard)    
+        
+    def addToTicketDiscard(self, ticket):
         '''adds one or more cards to the discard pile
         does not remove cards from source they came from
         tickets: list of length > 0
         '''
-        for card in tickets:
-            self.discardPile.append(card)
+        self.ticketDiscardPile.append(ticket)
     
     def getTicketPointValue(self, ticket):
         '''returns the point value associated with the destination ticket
@@ -148,7 +178,5 @@ class Cards:
         self.shuffle(self.tickets)
         self.ticketDiscardPile = []
         
-    
-    def printDrawPile(self):
-        '''prints the draw pile, nothing is returned'''
-        print self.drawPile
+    def isEmpty(self, pile):
+        return len(pile) == 0
