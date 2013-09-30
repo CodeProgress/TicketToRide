@@ -99,20 +99,16 @@ class Board:
         #create a copy of the board to store the original state of the board
         self.copyBoard = self.G.copy()
         
-    def showBoard(self, pauseTime = 7):
+    def showBoard(self, board, pauseTime = 7):
         '''display board
         '''
-        nx.draw(self.G)
+        pos=nx.spring_layout(board)
+        nx.draw(board, pos)
+        nx.draw_networkx_edge_labels(board, pos)
         pylab.ion()
         pylab.show()
         pylab.pause(pauseTime)
         pylab.close()
-
-    def showCopyBoard(self):
-        '''display copy board (original board)
-        '''
-        nx.draw(self.copyBoard)
-        pylab.show()
     
     def hasEdge(self, city1, city2):
         '''returns True an edge exists between city1, city2.  False otherwise
@@ -120,18 +116,29 @@ class Board:
         '''
         return self.G.has_edge(city1, city2)
 
-    def removeEdge(self, city1, city2, color):
-        '''remove the edge between two cities that's colored color
+    def removeEdge(self, city1, city2, edgeColor):
+        '''remove the edge between two cities that's colored edgeColor
         city1, city2:  string
-        color:  string
+        edgeColor:  string
         raises ValueError if edge does not exist
         '''
         if not self.hasEdge(city1, city2):
             raise ValueError("Edge between %s and %s does not exist" % (city1, city2))
-        if color not in self.getEdgeColors(city1, city2):
-            raise ValueError("A %s edge does not exist between %s and %s" % (color, city1, city2))
+        
+        posColors = self.getEdgeColors(city1, city2)
+        
+        #if the edge is grey, accept any color and remove grey
+        if "grey" in posColors:
+            self.G.get_edge_data(city1, city2)['edgeColors'].remove("grey")
+            if len(self.G.get_edge_data(city1, city2)['edgeColors']) == 0:
+                self.G.remove_edge(city1, city2)
+            
         else:
-            self.G.get_edge_data(city1, city2)['edgeColors'].remove(color)
+            if edgeColor not in posColors:
+                raise ValueError("A %s edge does not exist between %s and %s" % (edgeColor, city1, city2))
+            
+            #if edge has a color, remove that color
+            self.G.get_edge_data(city1, city2)['edgeColors'].remove(edgeColor)
             if len(self.G.get_edge_data(city1, city2)['edgeColors']) == 0:
                 self.G.remove_edge(city1, city2)
             
@@ -150,6 +157,9 @@ class Board:
         city1, city2: string
         '''
         return self.G.get_edge_data(city1, city2)['weight']
+    
+    def getNodes(self):
+        return self.G.nodes()
 
     def getCities(self):
         '''returns a list of all remaining cities that can be traveled to or from'''
@@ -159,6 +169,17 @@ class Board:
         '''returns a list of cities adjacent to city1 that still have available edges'''
         return self.G.get
         
+    def hasPath(self, city1, city2):
+        '''returns True if a path exists between city1 and city2
+        searches self.G (the graph the class uses)
+        city1, city2: String
+        '''
+        return nx.has_path(self.G, city1, city2)
+    
+    def iterEdges(self):
+        '''returns an interator over all edges and edge data'''
+        return self.G.edges_iter(data = True)
+        
 class PlayerBoard(Board):
     '''Creates an custom graph to be assigned to each player to represent all progress'''
     def __init__(self):
@@ -166,5 +187,18 @@ class PlayerBoard(Board):
     
     def addEdge(self, city1, city2, routeDist, color):
         self.G.add_edge(city1, city2, weight = routeDist, edgeColors = [color])
+        
+    def findLongestPath(self):
+        return -1
+        longestPath = 0
+        #Break into subgraphs to handled non continuous graphs
+        for subGraph in nx.connected_components(self.G):
+            for city1 in subGraph:
+                #to be completed...
+                pass
+                
+        
+                    
+                    
         
     
