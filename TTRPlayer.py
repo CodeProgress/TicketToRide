@@ -2,7 +2,7 @@ import collections
 
 class Player:
     
-    def __init__(self, startingHand, startingTickets, playerBoard, playerPosition, numTrains = 45):
+    def __init__(self, startingHand, startingTickets, playerBoard, playerPosition, numTrains):
         '''orderNumber: int
         startingHand: list
         startingTickets: list
@@ -57,6 +57,12 @@ class Player:
     
     def addPoints(self, numPoints):
         self.points += numPoints
+    
+    def subtractPoints(self, numPoints):
+        self.points -= numPoints
+        
+    def getPoints(self):
+        return self.points
         
     def getTickets(self):
         return self.tickets
