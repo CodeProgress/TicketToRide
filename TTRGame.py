@@ -23,11 +23,17 @@ class Game(object):
         self.players               = []
         
         self.posToMove             = 0
+        
+        #point values for tracks of different lengths
+        self.routeValues           = {1:1, 2:2, 3:4, 4:7, 5:10, 6:15}
 
         for position in range(numPlayers):
             startingHand     = self.deck.dealCards(self.sizeStartingHand)
-            startingTickets  = self.deck.dealTickets(self.numTicketsDealt)
+            startingTickets  = [] #self.deck.dealTickets(self.numTicketsDealt)
+                                  #this is now done in initialize method below
+                                  #occurs before first player's first move
             playerBoard      = TTRBoard.PlayerBoard()
+
             player           = TTRPlayer.Player(startingHand, 
                                                 startingTickets, 
                                                 playerBoard, 
@@ -36,10 +42,6 @@ class Game(object):
                                                 )                          
             self.players.append(player)
 
-        
-        
-        #point values for places tracks of different lengths
-        self.routeValues = {1:1, 2:2, 3:4, 4:7, 5:10, 6:15}
         
     def getPlayer(self, playerNumber):
         return self.players[playerNumber]
@@ -81,9 +83,12 @@ class Game(object):
     def checkEndingCondition(self, player):
         return player.getNumTrains() < self.endingTrainCount
     
-    def enterPlayerNames(self):
+    def initialize(self):
+        """Before game turns starts, enter names and pick destination tickets
+        """
         selectedNames = []
         for player in self.players:
+            #pick names
             count = 0
             name = raw_input("Player " 
                             + str(self.posToMove + 1) 
@@ -102,6 +107,12 @@ class Game(object):
             else:
                 player.setPlayerName(name)
                 selectedNames.append(name)
+                
+            #pick desination tickets
+            
+            self.pickTickets(player, 2)
+            
+            
             self.advanceOnePlayer()
 
     def printSepLine(self, group):
@@ -138,16 +149,32 @@ class Game(object):
             if player.playerBoard.hasPath(city1, city2):
                 player.addPoints(value)
                 
-    def scoreLongestRoute(self, players):
+    def scoreLongestPath(self):
         """determines which player has the longest route and 
         adjusts their score accordingly
         players: list of players
         adds self.pointsForLongestRoute to player with longest route
         """
-        
-        return None
 
-        #Waiting on this to be impimented in the Board class
+        scores = { x:(0, ()) for x in self.players }
+        longestPath = 0
+        for player in scores:
+
+            for city in player.playerBoard.getCities():
+                pathInfo = player.playerBoard.longestPath(city)
+                if pathInfo[0] > scores[player][0]:
+                    scores[player] = pathInfo
+        
+            if scores[player][0] > longestPath:
+                longestPath = scores[player][0]
+        
+        print scores
+        
+        for player in scores:
+            if scores[player][0] == longestPath:
+                player.addPoints(self.pointsForLongestRoute)
+        
+        #does not return anthing
 
     def printAllPlayerData(self):
         """prints out all of the non method attributes values for all players
@@ -280,6 +307,7 @@ class Game(object):
         self.printSepLine(player.getHand())
         
         city1 = raw_input("Please type the start city of desired route: ")
+        
         while city1 not in self.board.getCities() and count < 5:
             city1 = raw_input("Invalid response.  "
                               + "Please select from the above city list: "
@@ -433,9 +461,8 @@ class Game(object):
                     
         return "Move complete"
     
-    def pickTickets(self, player):
+    def pickTickets(self, player, minNumToSelect = 1):
         count = 0
-        minNumToSelect = 1
         tickets = self.deck.dealTickets(self.numTicketsDealt)
 
         #assign a number to each ticket to make it easier to choose
@@ -478,34 +505,6 @@ class Game(object):
         
         return "Move complete"
 
-def playTTRTest():
-
-    #before first turn, select 1, 2 or 3 destination tickets
-    
-    print "\n Welcome to Ticket to Ride! \n"
-    
-    
-    
-    numPlayers = raw_input("How many players will be playing today? "
-                            + "1,2,3,4,5 or 6? ")
-
-    count = 0
-    while int(numPlayers) not in range(1,7) and count < 5:
-        if numPlayers == 'exit': return "Thanks for playing!"
-        numPlayers = raw_input("Please enter either 1,2,3,4,5 or 6: ")
-        count += 1
-    if count >= 5:
-        print "Default player count has been set to 2"
-        numPlayers = 2
-        
-    game = Game(int(numPlayers))    
-    
-    game.enterPlayerNames()
-    
-    player = game.players[game.posToMove]
-    
-    game.printAllPlayerData()
-
 def playTTR():
 
     #before first turn, select 1, 2 or 3 destination tickets
@@ -528,10 +527,11 @@ def playTTR():
         
     game = Game(int(numPlayers))    
     
-    game.enterPlayerNames()
+    game.initialize()
+    
+    
     
     player = game.players[game.posToMove]
-
 
     #main game loop
     while True:
@@ -560,7 +560,7 @@ def playTTR():
     for player in game.players:
         game.scorePlayerTickets(player)
     
-    game.scoreLongestRoute(game.players)
+    game.scoreLongestPath()
     
 
     scores = []
