@@ -398,6 +398,11 @@ class Board(object):
         """
         return self.G.get_edge_data(city1, city2)['weight']
     
+    def getPathWeight(self, city1, city2):
+        """returns the weight of the shortest path between city1, city2
+        """
+        return nx.dijkstra_path_length(self.G, city1, city2)
+    
     def getNodes(self):
         return self.G.nodes()
 
@@ -411,7 +416,7 @@ class Board(object):
         """returns a list of cities adjacent to city1 
         that still have available edges
         """
-        return self.G.get
+        return [x[1] for x in self.G.edges(city1)]
         
     def hasPath(self, city1, city2):
         """returns True if a path exists between city1 and city2
@@ -430,20 +435,82 @@ class PlayerBoard(Board):
         self.G = nx.Graph()
     
     def addEdge(self, city1, city2, routeDist, color):
+        """
+        city1, city2, color: Strings
+        routeDist          : int
+        """
         self.G.add_edge(city1, city2, weight = routeDist, edgeColors = [color])
+
+    def longestPath(self, start):
+        """returns a tuple: (len longestPath, tuple of cities along longestPath)
+        This is a modification of BFS that uses edges instead of nodes
+        It has no ending condition, rather it searches the whole graph and
+        returns the weight of the longest path and the edges that of that path
+
+        #Doctest
+        >>> p = PlayerBoard()
+        >>> p.addEdge('a', 'b', 1, 'blue')
+        >>> p.addEdge('b', 'd', 1, 'blue')
+        >>> p.addEdge('d', 'e', 1, 'blue')
+        >>> p.addEdge('e', 'f', 1, 'blue')
+        >>> p.addEdge('e', 'b', 1, 'blue')
+        >>> p.addEdge('b', 'c', 1, 'blue')
+        >>> p.addEdge('a', 'z', 1, 'blue')
         
-    def findLongestPath(self):
-        return -1
-        longestPath = 0
-        #Break into subgraphs to handled non continuous graphs
-        #Will be a BFS but using edges instead of nodes
-        for subGraph in nx.connected_components(self.G):
-            for city1 in subGraph:
-                #to be completed...
-                pass
-                
+        >>> print p.longestPath('b')
         
+        (5, (['b', 'd', 'e', 'b', 'a', 'z'], 
+            set([('b', 'a'), ('d', 'e'), ('a', 'z'), ('e', 'b'), ('b', 'd')])))
+
+        >>> p = PlayerBoard()
+        >>> p.addEdge('a', 'b', 1, 'blue')
+        >>> p.addEdge('b', 'd', 1, 'blue')
+        >>> p.addEdge('d', 'e', 1, 'blue')
+        >>> p.addEdge('e', 'f', 98, 'blue')
+        >>> p.addEdge('e', 'b', 1, 'blue')
+        >>> p.addEdge('b', 'c', 1, 'blue')
+        >>> p.addEdge('a', 'z', 1, 'blue')
+        
+        >>> print p.longestPath('b')
+
+        (100, (['b', 'd', 'e', 'f'], 
+              set([('d', 'e'), ('e', 'f'), ('b', 'd')])))
+
+        """
+        
+        longestPath = (0, ())
+        q = [] #DFS Note, DFS will not guaruntee shortest path
+        
+        q.append( ( [start], set() ) ) #( [path], set(exploredEdges) )
+        
+        while q:
+            cur = q.pop() #pop() = DFS, pop(0) = BFS (consider Deque for O(1))
+            
+            if len(cur[1]) > 0:
+                pathWeight = sum( [self.getEdgeWeight(x[0],x[1]) 
+                                    for x in cur[1]] )
+            
+                if pathWeight > longestPath[0]:
+                    longestPath = (pathWeight, cur)
+            
+            node = cur[0][-1]
+            edgesExplored = cur[1]
+            adjCities = set()
+            for i in self.getAdjCities(node):
+                if (node, i) not in edgesExplored:
+                    if (i, node) not in edgesExplored:
+                        adjCities.add(i) #add if segment to city not explored
+            
+            for suc in adjCities:
+                proxy = cur[1].copy()
+                proxy.add((node, suc))
+                newPath = cur[0] + [suc]
+
+                q.append((newPath, proxy)) #add to path, add edge
                     
-                    
         
+        #Note: set of path edges will not be ordered
+        return longestPath        
+
+
     
