@@ -448,19 +448,6 @@ class PlayerBoard(Board):
         returns the weight of the longest path and the edges that of that path
 
         #Doctest
-        >>> p = PlayerBoard()
-        >>> p.addEdge('a', 'b', 1, 'blue')
-        >>> p.addEdge('b', 'd', 1, 'blue')
-        >>> p.addEdge('d', 'e', 1, 'blue')
-        >>> p.addEdge('e', 'f', 1, 'blue')
-        >>> p.addEdge('e', 'b', 1, 'blue')
-        >>> p.addEdge('b', 'c', 1, 'blue')
-        >>> p.addEdge('a', 'z', 1, 'blue')
-        
-        >>> print p.longestPath('b')
-        
-        (5, (['b', 'd', 'e', 'b', 'a', 'z'], 
-            set([('b', 'a'), ('d', 'e'), ('a', 'z'), ('e', 'b'), ('b', 'd')])))
 
         >>> p = PlayerBoard()
         >>> p.addEdge('a', 'b', 1, 'blue')
@@ -471,17 +458,19 @@ class PlayerBoard(Board):
         >>> p.addEdge('b', 'c', 1, 'blue')
         >>> p.addEdge('a', 'z', 1, 'blue')
         
-        >>> print p.longestPath('b')
-
-        (100, (['b', 'd', 'e', 'f'], 
-              set([('d', 'e'), ('e', 'f'), ('b', 'd')])))
+        >>> p.longestPath('b')
+        (100, (['b', 'd', 'e', 'f'], set([('d', 'e'), ('e', 'f'), ('b', 'd')])))
+        
+        # if p.addEdge('e', 'f', 1, 'blue')
+        # (5, (['b', 'd', 'e', 'b', 'a', 'z'], \
+        #    set([('b', 'a'), ('d', 'e'), ('a', 'z'), ('e', 'b'), ('b', 'd')])))
 
         """
         
         longestPath = (0, ())
-        q = [] #DFS Note, DFS will not guaruntee shortest path
+        q = []
         
-        q.append( ( [start], set() ) ) #( [path], set(exploredEdges) )
+        q.append( ([start], set()) ) #( [path], set(exploredEdges) )
         
         while q:
             cur = q.pop() #pop() = DFS, pop(0) = BFS (consider Deque for O(1))
@@ -497,9 +486,10 @@ class PlayerBoard(Board):
             edgesExplored = cur[1]
             adjCities = set()
             for i in self.getAdjCities(node):
+                #add if edge between cities not explored
                 if (node, i) not in edgesExplored:
                     if (i, node) not in edgesExplored:
-                        adjCities.add(i) #add if segment to city not explored
+                        adjCities.add(i) 
             
             for suc in adjCities:
                 proxy = cur[1].copy()
@@ -512,5 +502,6 @@ class PlayerBoard(Board):
         #Note: set of path edges will not be ordered
         return longestPath        
 
-
-    
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
