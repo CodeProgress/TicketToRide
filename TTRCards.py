@@ -2,15 +2,17 @@
 import random
 
 class Cards(object):
-    def __init__(self, sizeDrawPile):
+    def __init__(self, sizeDrawPile, maxWilds):
         self.sizeDrawPile = sizeDrawPile
         self.possibleColors = ["red",   "orange", "yellow", 
                                "green", "blue",   "purple", 
                                "white", "black"
                                ]
-                               
+        #add wilds                                             
         self.cards = ["wild" for x in range(14)] + \
                     [x for x in self.possibleColors for j in range(12)]
+
+        self.maxWilds = maxWilds
                      
         self.shuffle(self.cards)
         
@@ -49,8 +51,8 @@ class Cards(object):
         
         self.shuffle(self.tickets)
         
-        self.drawPile =          []
-        self.discardPile =       []
+        self.drawPile          = []
+        self.discardPile       = []
         self.ticketDiscardPile = []
 
         self.addToDrawPile()
@@ -104,7 +106,7 @@ class Cards(object):
         """returns the next card in cards"""
         return self.dealCard()
     
-    def addToDrawPile(self, maxWilds = 3):
+    def addToDrawPile(self):
         """adds one more cards to draw pile"""
         nextCard = self.dealCard()
         if nextCard != None: #when the drawPile AND discardPile are empty
@@ -115,7 +117,7 @@ class Cards(object):
         
         #check to see if draw pile has reached maxWilds, 
         #if so, clear and create new drawPile
-        if self.drawPile.count('wild') >= maxWilds:
+        if self.drawPile.count('wild') >= self.maxWilds:
             self.addToDiscard(self.drawPile)
             self.drawPile = []
             self.addToDrawPile()
