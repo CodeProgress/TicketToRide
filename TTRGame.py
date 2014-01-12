@@ -9,15 +9,16 @@ class Game(object):
     def __init__(self, numPlayers):
         
         self.sizeDrawPile          = 5
+        self.maxWilds              = 3
         self.numTicketsDealt       = 3
         self.sizeStartingHand      = 4
 
         self.endingTrainCount      = 3 # ending condition to trigger final round
 
         self.pointsForLongestRoute = 10
-        self.startingNumOfTrains   = 4 #45
-        self.deck                  = TTRCards.Cards(self.sizeDrawPile)
+        self.startingNumOfTrains   = 45
         
+        self.deck                  = TTRCards.Cards(self.sizeDrawPile, self.maxWilds)
         self.board                 = TTRBoard.Board()
         self.numPlayers            = numPlayers
         self.players               = []
@@ -486,6 +487,9 @@ class Game(object):
                 choice = raw_input("Invalid Choice: Select the number "
                                     + "corresponding to the above tickets, "
                                     + "type 'done' when finished: "
+                                    + " (must select at least "
+                                    + str(minNumToSelect)
+                                    + ") "
                                   )
                 count += 1
 
