@@ -48,3 +48,46 @@ class Game(object):
             self.players.append(player)
     
     
+    def printSepLine(self, toPrint):
+        print toPrint
+            
+    def advanceOnePlayer(self):
+        """Updates self.posToMove"""
+        self.posToMove += 1
+        self.posToMove %= self.numPlayers
+    
+    def getCurrentPlayer(self):
+        return self.players[self.posToMove]
+    
+    def doesPlayerHaveCardsForEdge(self, player, city1, city2):
+        if player.playerBoard.hasEdge(city1, city2):
+            return False
+        routeDist = self.board.getEdgeWeight(city1, city2)
+        routeColors = self.board.getEdgeColors(city1, city2)
+        for col in routeColors:
+            if col == 'grey':
+                if max([x for x in player.hand.values() if x != 'wild']) \
+                + player.hand['wild'] >= routeDist:
+                    return True
+            else:
+                routeDist = self.board.getEdgeWeight(city1, city2)
+                if player.hand[col] + player.hand['wild'] >= routeDist:
+                    return True
+        return False      
+    
+    def checkEndingCondition(self, player):
+        return player.getNumTrains() < self.endingTrainCount
+    
+    def initialize(self):
+        """Before game turns starts, enter names and pick destination tickets
+        """
+        
+        for player in self.players:
+                
+            #pick desination tickets
+            
+            self.pickTickets(player, 2)
+            
+            self.advanceOnePlayer()
+
+    
