@@ -90,4 +90,58 @@ class Game(object):
             
             self.advanceOnePlayer()
 
+    def scorePlayerTickets(self, player):
+        """returns None.  
+        Scores player's destination tickets and 
+        adds/subtracts from player's points
+        """
+        for ticket in player.tickets:
+            city1 = ticket[0]
+            city2 = ticket[1]
+            value = ticket[2]
+            posNodes = player.playerBoard.getNodes()
+            if city1 not in posNodes or city2 not in posNodes:
+                player.subtractPoints(value)
+                continue
+            if player.playerBoard.hasPath(city1, city2):
+                player.addPoints(value)
+                
+    def scoreLongestPath(self):
+        """determines which player has the longest route and 
+        adjusts their score accordingly
+        players: list of players
+        adds self.pointsForLongestRoute to player with longest route
+        """
+
+        scores = { x:(0, ()) for x in self.players }
+        longestPath = 0
+        for player in scores:
+
+            for city in player.playerBoard.getCities():
+                pathInfo = player.playerBoard.longestPath(city)
+                if pathInfo[0] > scores[player][0]:
+                    scores[player] = pathInfo
+        
+            if scores[player][0] > longestPath:
+                longestPath = scores[player][0]
+        
+        print scores
+        
+        for player in scores:
+            if scores[player][0] == longestPath:
+                player.addPoints(self.pointsForLongestRoute)
+        
+        #does not return anthing
+
+    def printAllPlayerData(self):
+        """prints out all of the non method attributes values for all players
+        """
+        for player in self.players:
+            print player.name
+            print "------------------------------"
+            for x in player.__dict__:
+                print x, player.__dict__[x]
+                    
+            print "=============================="
+
     
