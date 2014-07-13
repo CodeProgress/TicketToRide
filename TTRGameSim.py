@@ -144,4 +144,41 @@ class Game(object):
                     
             print "=============================="
 
+    def playTurn(self, player):
+        """player chooses 'cards', 'trains', 'tickets'
+        player: player object
+        """
+        
+        choice = raw_input("Please type: cards, trains or tickets: ")
     
+        count = 0 # a way out of the loop if 5 invalid responses
+        while choice not in ['cards', 'trains', 'tickets'] and count < 5:
+            choice = raw_input("Invalid repsonse. Please select either cards, "
+                               + "trains or tickets: ")
+            count += 1
+
+        #displayMap = raw_input("Display map? y/n: ")
+        #if displayMap == 'y':
+        #    pauseTime = raw_input("For how many seconds? (between 1 and 30): ")
+        #    if int(pauseTime) not in range(1, 31):
+        #        pass
+        #    else:
+        #        self.board.showBoard(self.board.G, int(pauseTime))
+        #        #Depricated?
+
+        if count >= 5:
+            return "Move complete"
+            
+        if choice == 'cards':
+            self.pickCards(player)
+            return "Move complete"
+        
+        elif choice == 'trains':
+            self.placeTrains(player)
+            return "Move complete"
+        else:
+            self.pickTickets(player)
+            return "Move complete"
+    
+    
+
