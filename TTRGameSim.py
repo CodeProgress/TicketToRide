@@ -180,5 +180,75 @@ class Game(object):
             self.pickTickets(player)
             return "Move complete"
     
-    
+    def pickCards(self, player):
+        count = 0 # a way out of the loop if 5 invalid responses
+        print "Your hand consists of: "
+        self.printSepLine(player.getHand())
+        
+        print "Draw pile consists of: "
+        self.printSepLine(self.deck.getDrawPile())
+        
+        choice1 = raw_input("Please type a card from the above list or "
+                            + "type 'drawPile': ")
+        while choice1 not in self.deck.getDrawPile() + ['drawPile'] \
+               and count < 5:
 
+            choice1 = raw_input("Invalid repsonse. Please type either from " 
+                                + str(self.deck.getDrawPile()) 
+                                + " or type 'drawPile' "
+                                )
+            count += 1
+        
+        #add card to player's hand
+        #remove it from drawPile or cards and 
+        #add new card to drawPile
+        if count >= 5:
+            pass
+        elif choice1 == 'drawPile':
+            chosenCard = self.deck.pickFaceDown()
+            print "You selected: " + str(chosenCard)
+            player.addCardToHand(chosenCard)
+        else:
+            player.addCardToHand(self.deck.pickFaceUpCard(choice1))
+        
+        #start second card selection
+        if choice1 == 'wild':
+            print "Your hand now consists of: "
+            self.printSepLine(player.getHand()) 
+ 
+            return "Move complete"
+
+        count = 0
+        
+        self.printSepLine(self.deck.getDrawPile())
+         
+        choice2 = raw_input("Please type another card from the above list or "
+                            + "type 'drawPile': ")
+        while choice2 == 'wild'  \
+               or (choice2 not in self.deck.getDrawPile() + ['drawPile'] \
+               and count < 5):
+            
+            choice2 = raw_input("Invalid repsonse. Please type either from " 
+                                + str(self.deck.getDrawPile()) 
+                                + " or type 'drawPile' \
+                                NOTE: second choice cannot be 'wild' "
+                                )
+            count += 1
+            
+        #add card to player's hand
+        #remove it from drawPile or cards and 
+        #add new card to drawPile
+        if count >= 5:
+            return "Move complete"
+        elif choice2 == 'drawPile':
+            chosenCard = self.deck.pickFaceDown()
+            print "You selected: " + str(chosenCard)
+            player.addCardToHand(chosenCard)
+        else:
+            player.addCardToHand(self.deck.pickFaceUpCard(choice2))
+        
+        print "Your hand now consists of: "
+        self.printSepLine(player.getHand())  
+        return "Move complete"
+    
+    
