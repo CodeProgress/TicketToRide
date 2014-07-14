@@ -388,4 +388,34 @@ class Game(object):
             numWild = 0
 
         #verify that this is a legal move
+        if numWild + numColor != routeDist:
+            print "Selected cards do not properly span that route"
+            return "Move complete"
         
+        #claim route for player (see dedicated method within Game class)
+        player.playerBoard.addEdge(city1, city2, routeDist, color)
+        
+        #remove route from main board
+        self.board.removeEdge(city1, city2, color)
+        
+        #calculate points
+        player.addPoints(self.routeValues[routeDist])
+    
+        #remove cards from player's hand
+        player.removeCardsFromHand(color, numColor)
+        player.removeCardsFromHand('wild', numWild)
+        
+        #add cards to discard pile
+        self.deck.addToDiscard([color for x in range(numColor)] 
+                              + ['wild' for x in range(numWild)]
+                              )
+        
+        #remove trains from players numTrains
+        player.playNumTrains(routeDist)
+        
+        print "Number of trains left to play: "
+        self.printSepLine(player.getNumTrains())  
+                    
+        return "Move complete"
+    
+    
