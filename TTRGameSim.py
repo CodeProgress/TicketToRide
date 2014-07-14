@@ -251,4 +251,60 @@ class Game(object):
         self.printSepLine(player.getHand())  
         return "Move complete"
     
+    def placeTrains(self, player):
+        count = 0
+        print "Available cities:"
+
+        #only print routes that are legal given the players cards
+        #sort alphabetically
+        self.printSepLine([x for x in sorted(self.board.iterEdges()) 
+                        if self.doesPlayerHaveCardsForEdge(player, x[0], x[1])])
+        
+        print "Your hand consists of: "
+        self.printSepLine(player.getHand())
+        
+        city1 = raw_input("Please type the start city of desired route: ")
+        
+        while city1 not in self.board.getCities() and count < 5:
+            city1 = raw_input("Invalid response.  "
+                              + "Please select from the above city list: "
+                             )
+            count += 1
+        
+        if count >= 5:
+            return "Move complete"
+            
+        if len([x for x in self.board.G.neighbors(city1) 
+                if self.board.hasEdge(city1, x)]) == 0:
+
+            print "You have a selected a city with no legal destination"
+            return "Move complete"
+        
+        #start city2
+        count = 0
+        
+        print "Available destination cities: " \
+        + str([x for x in self.board.G.neighbors(city1) 
+              if self.doesPlayerHaveCardsForEdge(player, city1, x)])
+        
+        city2 = raw_input("Please type the destination city to go to from " 
+                          + str(city1) 
+                          + " : "
+                          )
+        
+        while not self.board.hasEdge(city1, city2) and count < 5:
+            city2 = raw_input("Invalid response.  "
+                              + "Please type one of the following cities "
+                              + "(without quotes): \n" 
+                              + str([x for x in self.board.G.neighbors(city1) 
+                                    if self.board.hasEdge(city1, x)]) 
+                              + " : "
+                              )
+            count += 1    
+            
+        if count >=5:
+            return "Move complete"
     
+        #start exchange cards and place trains
+    
+       
