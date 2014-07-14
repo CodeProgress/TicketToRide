@@ -307,4 +307,85 @@ class Game(object):
     
         #start exchange cards and place trains
     
-       
+        routeDist = self.board.getEdgeWeight(city1, city2)
+        spanColors = self.board.getEdgeColors(city1, city2)
+        
+        if len(spanColors) == 0:
+            #a little harsh but will updated later to players start over
+            print "You have a selected two cities with no legal route"
+            return "Move complete"
+        
+        
+        print "\n This route is of length: "
+        self.printSepLine(routeDist)
+        print "Your hand consists of: "
+        self.printSepLine(player.getHand())
+        
+        if len(spanColors) == 1:
+            color = spanColors[0] #use first element, getEdgeColors returns list
+            print "This route is: " + str(color)
+        else:
+            color = raw_input("which color track would you like to claim? (" 
+                              + str(spanColors) 
+                              + " available): "
+                              )
+            if color not in spanColors:
+                print "Invalid Color"
+                return "Move complete"
+                
+        #check to see if player has appropriate cards to play route 
+        # (edge weight, color/wild)
+        if not self.doesPlayerHaveCardsForEdge(player, city1, city2):
+            print "You do not have sufficient cards to play this route"
+            return "Move complete"
+        if color == 'grey':
+            availColor = max(x for x in player.hand.values())
+        else:
+            availColor = player.hand[color]
+
+        availWild = player.hand['wild']
+        if color == 'grey':
+            
+            color = raw_input("Which color would you like to play "
+                              + "on this grey route? "
+                              + "(pick a color, not 'wild'): "
+                             )
+
+            if color not in self.deck.possibleColors:
+                print "Invalid Color"
+                return "Move complete"
+            availColor = player.hand[color]
+            numColor = raw_input("How many " + str(color) 
+                                 + " cards would you like to play? (" 
+                                 + str(availColor) 
+                                 + " available): "
+                                 )
+        else:
+            numColor = raw_input("How many " 
+                                 + str(color) 
+                                 + " cards would you like to play? (" 
+                                 + str(availColor) 
+                                 + " available) "
+                                 )
+        if numColor not in [str(x) for x in range(routeDist + 1)]:
+            print "Invalid Entry"
+            return "Move complete"
+        numColor = int(numColor) # change raw string to int
+        if numColor not in range(0, availColor +1):
+            print "You do not have that many"
+            return "Move complete"
+
+        if numColor < routeDist: #span distance
+            numWild = raw_input("How many wild cards would you like to play? (" 
+                                + str(availWild) 
+                                + " available) "
+                                )
+            numWild = int(numWild)
+            if numWild not in range(0, availWild +1):
+                print "You do not have that many"
+                return "Move complete"
+        else:
+            numWild = 0
+
+        #verify that this is a legal move
+        
