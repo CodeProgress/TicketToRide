@@ -465,3 +465,92 @@ class Game(object):
         
         return "Move complete"
     
+
+def playTTR():
+
+    #before first turn, select 1, 2 or 3 destination tickets
+    
+    print "\n Welcome to Ticket to Ride! \n"
+    
+    
+    
+    numPlayers = raw_input("How many players will be playing today? "
+                            + "1,2,3,4,5 or 6? ")
+
+    count = 0
+    while int(numPlayers) not in range(1,7) and count < 5:
+        if numPlayers == 'exit': return "Thanks for playing!"
+        numPlayers = raw_input("Please enter either 1,2,3,4,5 or 6: ")
+        count += 1
+    if count >= 5:
+        print "Default player count has been set to 2"
+        numPlayers = 2
+        
+    game = Game(int(numPlayers))    
+    
+    game.initialize()
+    
+    
+    
+    player = game.players[game.posToMove]
+
+    #main game loop
+    while True:
+        print "\n_________________NEW PLAYER'S TURN_________________ \n"
+        print "It's your turn " + str(player.getName()) + "! "
+        game.playTurn(player)
+        
+        #condition to break out of loop
+        if game.checkEndingCondition(player):
+            game.advanceOnePlayer()
+            player = game.getCurrentPlayer()
+            break
+        game.advanceOnePlayer()
+        player = game.getCurrentPlayer()
+    
+    print "\n This is the last round!  Everyone has one more turn! \n"
+    
+    for i in range(len(game.players)):
+        print "\n_________________NEW PLAYER'S TURN_________________ \n"
+        print "This is your LAST TURN " + str(player.getName()) + "! "
+        game.playTurn(player)
+        game.advanceOnePlayer()
+        player = game.getCurrentPlayer()
+    
+    
+    for player in game.players:
+        game.scorePlayerTickets(player)
+    
+    game.scoreLongestPath()
+    
+
+    scores = []
+    for player in game.players:
+        print (str(player.getName()) 
+               + " had " 
+               + str(player.getPoints()) 
+               + " points!"
+               )
+        score = player.getPoints()
+        scores.append(score)
+        
+    
+    winners = [x.getName() for x in game.players 
+              if x.getPoints() == max(scores)]
+
+    if len(winners) == 1:
+        print "The winner is " + str(winners[0])
+    else:
+        print "The winners are " + ' and '.join(winners)
+    
+    
+    print "\n =========== Data =========== \n"
+    
+    game.printAllPlayerData()
+    
+    print "\n =========== fin =========== \n"
+
+if __name__ == "__main__":
+
+    playTTR()
+
