@@ -110,9 +110,7 @@ class Game(object):
                 selectedNames.append(name)
                 
             #pick desination tickets
-            
             self.pickTickets(player, 2)
-            
             
             self.advanceOnePlayer()
 
@@ -473,16 +471,15 @@ class Game(object):
         self.printSepLine(tickets)
         
         choices = set()
-        choice = raw_input("Select a number corresponding to the above tickets,"
-                            + " type done when finished: ")
+        choice = ''
 
         while (choice != 'done' and count < 7) \
                or len(choices) < minNumToSelect:
             try:
-                choices.add(tickets[int(choice)])
                 choice = raw_input("Select the number corresponding to the "
                                    +"above tickets, type 'done' when finished: "
                                   )
+                choices.add(tickets[int(choice)])
             except:
                 choice = raw_input("Invalid Choice: Select the number "
                                     + "corresponding to the above tickets, "
@@ -492,7 +489,10 @@ class Game(object):
                                     + ") "
                                   )
                 count += 1
-
+                
+            if len(choices) >= self.numTicketsDealt:
+                break            
+            
         print "You selected: "
         for ticket in choices:
             player.addTicket(ticket)
