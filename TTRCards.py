@@ -186,6 +186,11 @@ class Cards(object):
         self.tickets = self.ticketDiscardPile
         self.shuffle(self.tickets)
         self.ticketDiscardPile = []
+    
+    def numTicketsLeftToDeal(self):
+        if len(self.tickets) == 0:
+            self.restockTickets()
+        return len(self.tickets)
         
     def isEmpty(self, pile):
         return len(pile) == 0
