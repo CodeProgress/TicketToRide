@@ -462,7 +462,14 @@ class Game(object):
     
     def pickTickets(self, player, minNumToSelect = 1):
         count = 0
-        tickets = self.deck.dealTickets(self.numTicketsDealt)
+        numTicketsToDeal = min(self.deck.numTicketsLeftToDeal(), 
+                               self.numTicketsDealt)
+        if numTicketsToDeal <= 0:
+            print "No more tickets remain! Move complete"
+            print "All of your tickets: "
+            self.printSepLine(player.getTickets())
+            return
+        tickets = self.deck.dealTickets(numTicketsToDeal)
 
         #assign a number to each ticket to make it easier to choose
         tickets = {x[0]:x[1] for x in zip(range(len(tickets)), tickets)}
@@ -473,37 +480,37 @@ class Game(object):
         choices = set()
         choice = ''
 
-        while (choice != 'done' and count < 7) \
-               or len(choices) < minNumToSelect:
+        while True:
             try:
                 choice = raw_input("Select the number corresponding to the "
                                    +"above tickets, type 'done' when finished: "
-                                  )
+                                   )
                 choices.add(tickets[int(choice)])
-            except:
-                choice = raw_input("Invalid Choice: Select the number "
-                                    + "corresponding to the above tickets, "
-                                    + "type 'done' when finished: "
-                                    + " (must select at least "
-                                    + str(minNumToSelect)
-                                    + ") "
-                                  )
-                count += 1
-                
-            if len(choices) >= self.numTicketsDealt:
-                break            
+            except: 
+                if choice != 'done':
+                    print "Invalid Choice: "
             
-        print "You selected: "
-        for ticket in choices:
-            player.addTicket(ticket)
-            print ticket
+            if choice == 'done':
+                if len(choices) >= minNumToSelect:
+                    break
+                else:
+                    print ("Must select at least " + str(minNumToSelect))
+            if count > 7:
+                break
+            count += 1
+            if len(choices) >= numTicketsToDeal:
+                break
         
-        
-        #add tickets that weren't chosen to the ticketDiscardPile
-        notChosen = set(range(len(tickets))).difference(choices)
-        for i in notChosen:
-            self.deck.addToTicketDiscard(tickets[i])
-        
+        #add tickets to ticketDiscardPile or player's hand
+        for ticket in tickets.values():
+            if ticket in choices:
+                player.addTicket(ticket)
+                print "You selected:", ticket
+            else:
+                self.deck.addToTicketDiscard(ticket)
+       
+        print len(self.deck.tickets), len(self.deck.ticketDiscardPile)    
+                      
         print "All of your tickets: "
         self.printSepLine(player.getTickets())
         
