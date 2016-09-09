@@ -89,7 +89,7 @@ class Game(object):
         self.narrow_down_starting_tickets_for_all_players()
 
     def is_game_over(self):
-        pass
+        return max(player.getNumTrains() for player in self.players) < self.endingTrainCount
 
     def score_routes(self):
         pass
@@ -118,11 +118,12 @@ class Game(object):
 
     def playTTR(self):
         self.initialize_game()
-
-        # While game not over, play turn, rotating through players
+        while not self.is_game_over():
+            # rotate to next player
+            # play turn
+            break
 
         # Score every player
-
         # Display scores/data
         pass
 
